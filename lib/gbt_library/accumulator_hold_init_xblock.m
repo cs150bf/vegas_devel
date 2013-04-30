@@ -1,12 +1,13 @@
 function accumulator_hold_init_xblock(blk, varargin)
 
 
-defaults = {'add_latency', 1, 'hold_period', 1, 'ext_en', 'on'};
+defaults = {'add_latency', 1, 'hold_period', 1, 'ext_en', 'on', 'extra_delay', 0};
 
 
 n_bits = get_var('n_bits', 'defaults', defaults, varargin{:});
 hold_period = get_var('hold_period', 'defaults', defaults, varargin{:});
 ext_en = get_var('ext_en', 'defaults', defaults, varargin{:});
+extra_delay = get_var('extra_delay', 'defaults', defaults, varargin{:});
 
 %% inports
 xlsub1_data_in = xInport('data_in');
@@ -28,7 +29,8 @@ if strcmp(ext_en, 'off')
     en = xSignal('en');
     hold_en = xBlock(struct('source', str2func('hold_en_init_xblock'), 'name', 'en_gen'), ...
              {[blk, '/en_gen'], ...
-              'hold_period', hold_period}, ...
+              'hold_period', hold_period, ...
+              'extra_delay', extra_delay}, ...
              {xlsub1_sync}, ...
              {en});
          
