@@ -7,7 +7,8 @@ n_inputs = 4 # number of simultaneous inputs - should be 4 for final design
 lo_f = [104,104,104,104,104,104,104,104,104]
 #boffile='v13_16r128dr_ver104_2013_Feb_19_2001.bof'
 #boffile='v13_16r128dr_ver104_2013_Mar_05_1659.bof'
-boffile='v13_16r128dr_ver111_2013_Mar_06_1933.bof'
+#boffile='v13_16r128dr_ver111_2013_Mar_06_1933.bof'
+boffile = 'l8_ver115_2013_May_16_2052.bof'
 roach = '192.168.40.80'
 
 dest_ip  = 10*(2**24) +  145 #10.0.0.145
