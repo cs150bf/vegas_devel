@@ -330,6 +330,7 @@ def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
       resp_tmp = max(y)/max(y0)
       #resp_tmp = y[i]/max(y0) 
       resp_y=resp_y+max(y)
+    print 'response (accumulated '+str(acc_len)+' times): '+str(resp_y)
     resp=np.append(resp, resp_y)
     freqs=np.append(freqs, freq)
     specs=np.vstack((specs, y))

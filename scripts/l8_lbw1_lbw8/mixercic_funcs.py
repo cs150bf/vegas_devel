@@ -142,7 +142,7 @@ def calc_lof(lof_input):
                     break
     lof_actual = Fs*lof_diff_n/(lof_diff_m*1.)
     print 'Mixing frequency (user input): '+str(lof_input)+'MHz'
-    print 'Mixing frequency (actual achivable):'+str(lof_actual)+'MHz'
+    print 'Mixing frequency (actual achievable):'+str(lof_actual)+'MHz'
     return lof_actual, lof_diff_n, lof_diff_m
 
 def lo_setup(lo_f, mixer_name):
@@ -173,7 +173,15 @@ def lo_setup(lo_f, mixer_name):
     return lof_output, lo_wave
 
 def lo_adjust(i, new_lo):
-  """ set Nth subband to LO """
+  '''
+     Set Nth subband to LO 
+     Parameters:
+	i: the ith subband
+	new_lo: desired LO frequency
+     Return values:
+	lo_actual: the actual achievable LO
+	lo_wave: generated sine/cos wave to fill in the brams
+  '''
   lo_actual, lo_wave = lo_setup(new_lo, 's'+str(i))
   return lo_actual, lo_wave
 
