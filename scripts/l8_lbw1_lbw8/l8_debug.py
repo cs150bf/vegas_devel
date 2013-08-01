@@ -104,7 +104,7 @@ def get_mixer(pol):
     return mixer_re, mixer_im
 
 def getadc(i):
-    """ Read the output of adc, given (i) *** i=0 OR i=1  """
+    """ Read the output of adc(i); i=0 OR i=1  """
     adc=np.fromstring(fpga.snapshot_get('adcsnap'+str(i),man_trig=True,man_valid=True)['data'],dtype='<i1')
     return adc
 
@@ -281,7 +281,7 @@ def plot_chc(lo_f):
     plotfft(ax2, chc_p2, lo_f, bw, dec_rate)
     show()
 
-def filterresponse(pol, lo_f, scan_range=1, skip=50):
+def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
   '''
   Plot the filter response of the CIC-Halfband-CIC filter (subband1)
   ***Notes: This function calls several functions (e.g. setfreq(), setampl(), etc.) that's specific for Berkeley BWRC setup
@@ -291,6 +291,7 @@ def filterresponse(pol, lo_f, scan_range=1, skip=50):
   Parameters:
     pol: which pol to plot
     lo_f: LO
+    acc_len: accumulation length
     scan_range: how many times of bandpass range to scan
     skip: how to select test frequencies - skip how many points
   Return values:
@@ -316,7 +317,7 @@ def filterresponse(pol, lo_f, scan_range=1, skip=50):
     time.sleep(.3)
     print runbash('./sg_ctrl freq')[0].split(' ')[0]  #BWRC
     resp_y=0
-    for k in range(5):
+    for k in range(acc_len):
       data=get_subband1(pol)
       adc=getadc(pol-1)
       time.sleep(.3)

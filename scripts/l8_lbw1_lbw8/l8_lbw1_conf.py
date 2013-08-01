@@ -23,7 +23,10 @@ dec_rate = 128. # decimation rate
 #boffile='v13_16r128dr_ver117_2013_Apr_12_0131.bof'
 #boffile='l8_ver115_2013_May_17_1027.bof'
 #boffile='l8_ver117_2013_May_25_1242.bof'
-boffile='l8_ver121_01_2013_Jul_21_1229.bof'
+#boffile='l8_ver121_01_2013_Jul_21_1229.bof'
+#boffile='l8_ver122_02_2013_Jul_30_0230.bof'
+#boffile='l8_ver122_03_2013_Jul_30_1211.bof'
+boffile='l8_ver122_03_2013_Jul_31_0115.bof'
 
 roach = '192.168.40.99'
 
