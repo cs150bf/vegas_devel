@@ -28,8 +28,10 @@ dec_rate = 128. # decimation rate
 #boffile='l8_ver122_03_2013_Jul_30_1211.bof'
 #boffile='l8_ver122_03_2013_Jul_31_0115.bof'
 #boffile='l8_ver123_2013_Jul_31_2028.bof'
-#boffile='l8_ver124_2013_Aug_01_0225.bof'
-boffile='l8_ver126_2013_Aug_02_1533.bof'
+boffile='l8_ver124_2013_Aug_01_0225.bof'
+#boffile='l8_ver126_2013_Aug_02_1533.bof'
+#boffile='l8_ver127_2013_Aug_03_0102.bof' 
+#boffile='l8_ver128_2013_Aug_03_1612.bof' #no-halfband (for test)
 
 roach = '192.168.40.99'
 

@@ -179,6 +179,16 @@ def get_chc(pol):
   chc = makecomplex(chc_re, chc_im)
   return chc
 
+def get_chc8bit(pol):
+  chc_raw = np.fromstring(fpga.snapshot_get('cic'+str(pol)+'_snap', man_trig=True, man_valid=True)['data'], dtype='>i1')
+  chc_re_raw = chc_raw[0::8]
+  chc_im_raw = chc_raw[5::8]
+  chc_re = chc_re_raw[0::(dec_rate/(2**n_inputs))]
+  chc_im = chc_im_raw[0::(dec_rate/(2**n_inputs))]
+  chc = makecomplex(chc_re, chc_im)
+  return chc
+
+
 def getpacket():
   size=8208
   udp_ip='10.0.0.145'
@@ -281,6 +291,44 @@ def plot_chc(lo_f):
     plotfft(ax2, chc_p2, lo_f, bw, dec_rate)
     show()
 
+def plot_chc8bit(lo_f):
+    '''
+    Plot the output of the combined filter (dec_rate = 128)
+    Grab data from the CHC-snaps (32bits) and get the TOP 8 bits
+    Parameters: lo_f (LO frequency)
+    '''
+    chc_p1 = get_chc8bit(1)
+    chc_p2 = get_chc8bit(2)
+    f, (ax1, ax2, ax3, ax4) = subplots(4)
+    ax1.plot(chc_p1.real, '-o')
+    ax2.plot(chc_p1.imag, '-o')
+    ax3.plot(chc_p2.real, '-o')
+    ax4.plot(chc_p2.imag, '-o')
+    show()
+    f, (ax1, ax2) = subplots(2)
+    plotfft(ax1, chc_p1, lo_f, bw, dec_rate)
+    plotfft(ax2, chc_p2, lo_f, bw, dec_rate)
+    show()
+
+def plot_subband1(lo_f):
+    '''
+    Plot the output of the combined filter (dec_rate = 128)
+    From subband1 snap blocks (8bit)
+    '''
+    chc_p1 = get_subband1(1)
+    chc_p2 = get_subband1(2)
+    f, (ax1, ax2, ax3, ax4) = subplots(4)
+    ax1.plot(chc_p1.real, '-o')
+    ax2.plot(chc_p1.imag, '-o')
+    ax3.plot(chc_p2.real, '-o')
+    ax4.plot(chc_p2.imag, '-o')
+    show()
+    f, (ax1, ax2) = subplots(2)
+    plotfft(ax1, chc_p1, lo_f, bw, dec_rate)
+    plotfft(ax2, chc_p2, lo_f, bw, dec_rate)
+    show()
+
+
 def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
   '''
   Plot the filter response of the CIC-Halfband-CIC filter (subband1)
@@ -300,6 +348,7 @@ def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
     specs: a 2-D array containing corresponding spectra 
   '''
   resp=np.array([])
+  resp1=np.array([])
   freqs=np.array([])
   time.sleep(1)
   data=get_subband1(pol)
@@ -312,29 +361,37 @@ def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
   for i in range(0,nchan*scan_range,skip):
     freq=freq_arr[i]
     print "setting freq ",str(freq)
-    setampl(-15) #BWRC
+    #setampl(-15) #BWRC
     setfreq(freq) #BWRC
     time.sleep(.3)
     print runbash('./sg_ctrl freq')[0].split(' ')[0]  #BWRC
     resp_y=0
+    resp_y1=0
     for k in range(acc_len):
       data=get_subband1(pol)
+      data_1=get_halfband(pol)
       adc=getadc(pol-1)
       time.sleep(.3)
       y=np.fft.fft(data)
+      y1=np.fft.fft(data_1)
       y0=np.fft.fft(adc)
       y[0]=0
+      y1[0]=0
       y0[0]=0
       y=abs(np.fft.fftshift(y))
+      y1=abs(np.fft.fftshift(y1))
       y0=abs(np.fft.fftshift(y0))
       resp_tmp = max(y)/max(y0)
+      resp_1tmp = max(y1)/max(y0)
       #resp_tmp = y[i]/max(y0) 
-      resp_y=resp_y+max(y)
+      resp_y=resp_y+resp_tmp
+      resp_y1=resp_y1+resp_1tmp
     print 'response (accumulated '+str(acc_len)+' times): '+str(resp_y)
     resp=np.append(resp, resp_y)
+    resp1=np.append(resp1, resp_y1)
     freqs=np.append(freqs, freq)
     specs=np.vstack((specs, y))
 
-  return resp, freqs, specs
+  return resp, resp1, freqs, specs
 
 
