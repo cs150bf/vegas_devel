@@ -33,14 +33,11 @@ time.sleep(1)
 #boffile='newmode_2013_Mar_26_1953.bof'
 #boffile='newmode_ver102_2013_Apr_04_1517.bof'
 #boffile='h16k_ver100_2013_Apr_17_1725.bof'
-<<<<<<< HEAD
-boffile='h16k_ver104_2013_Aug_06_1117.bof'
-=======
-#boffile='h16k_ver102_2013_Aug_01_1254.bof'
-#boffile='h16k_ver103_2013_Aug_03_2049.bof'
-#boffile='h16k_ver104_2013_Aug_06_1117.bof'
-boffile='h16k_ver107_01_2013_Aug_11_1144.bof'
->>>>>>> mode_hbw
+#boffile='h16k_ver104_2013_Aug_06_1117.bof'   #<---MW
+#boffile='h16k_ver102_2013_Aug_01_1254.bof'   #<---HC
+#boffile='h16k_ver103_2013_Aug_03_2049.bof'   #<---HC
+#boffile='h16k_ver104_2013_Aug_06_1117.bof'   #<---HC
+boffile='h16k_ver107_01_2013_Aug_11_1144.bof' #<---HC
 
 # Program the Device
 fpga.progdev(boffile)
