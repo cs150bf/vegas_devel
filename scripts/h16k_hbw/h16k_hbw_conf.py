@@ -37,8 +37,9 @@ time.sleep(1)
 #boffile='h16k_ver102_2013_Aug_01_1254.bof'   #<---HC
 #boffile='h16k_ver103_2013_Aug_03_2049.bof'   #<---HC
 #boffile='h16k_ver104_2013_Aug_06_1117.bof'   #<---HC
-boffile='h16k_ver107_01_2013_Aug_11_1144.bof' #<---HC
+#boffile='h16k_ver107_01_2013_Aug_11_1144.bof' #<---HC
 #boffile='h16k_ver102_2013_Aug_19_1340.bof' #<--- HC ver107 compiled by MW
+boffile='h16k_ver102_2013_Aug_20_0053.bof'
 
 # Program the Device
 fpga.progdev(boffile)
