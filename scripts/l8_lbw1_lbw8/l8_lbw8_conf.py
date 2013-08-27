@@ -12,7 +12,8 @@ bramlength = 10 # size of brams used in mixers (2^?)
 mode_sel = 0  # 0 for mode l8_lbw8
 t_sleep = 1
 n_subbands = 8
-lo_f = [15, 77, 91, 135, 296, 588, 710, 1247]
+#lo_f = [15, 77, 91, 135, 296, 588, 710, 1247]
+lo_f = [155, 155, 155, 155, 155, 155, 155, 155]
 lo_f_actual = lo_f
 brd_clk = 1500. # bandwidth, in MHz, aka brd_clk
 bw = brd_clk
@@ -24,7 +25,8 @@ dec_rate = 128. # decimation rate
 #boffile='v13_16r128dr_ver117_2013_Apr_12_0131.bof'
 #boffile='l8_ver115_2013_May_17_1027.bof'
 #boffile='l8_ver117_2013_May_25_1242.bof'
-boffile='l8_ver121_01_2013_Jul_21_1229.bof'
+#boffile='l8_ver121_01_2013_Jul_21_1229.bof'
+boffile='l8_ver106_2013_Aug_25_2033.bof'
 
 roach = '192.168.40.99'
 
@@ -94,7 +96,8 @@ print 'done'
 for i in range(n_subbands):
     lo_f_actual[i], wave_tmp = lo_setup(lo_f[i], 's'+str(i))
     time.sleep(t_sleep)
-    setgain(i, 2**12, 2**14)
+    #setgain(i, 2**12, 2**14)
+    set_gain(i, 2**12)
     time.sleep(t_sleep)
 
 print "Board Clock: ",fpga.est_brd_clk()

@@ -167,13 +167,19 @@ def get_subband1(pol):
   s1p = makecomplex(s1p_re, s1p_im)
   return s1p
 
-def get_chc(pol):
+def get_chc(pol, man_trig=True, man_valid=True):
   ''' 
   This is for the output of the first subband
   Parameters: pol1 (1 or 2)
   Returns: a complex array
   '''
-  chc_raw = np.fromstring(fpga.snapshot_get('cic'+str(pol)+'_snap', man_trig=True, man_valid=True)['data'], dtype='>i4')
+  if not man_trig:
+    fpga.write_int('trig', 0)
+    fpga.write_int('trig', 1)
+    time.sleep(0.1)
+    fpga.write_int('trig', 0)
+    time.sleep(15)
+  chc_raw = np.fromstring(fpga.snapshot_get('cic'+str(pol)+'_snap', man_trig=man_trig, man_valid=man_valid)['data'], dtype='>i4')
   chc_re = chc_raw[0::2*(dec_rate/(2**n_inputs))]
   chc_im = chc_raw[1::2*(dec_rate/(2**n_inputs))]
   chc = makecomplex(chc_re, chc_im)
@@ -188,6 +194,16 @@ def get_chc8bit(pol):
   chc = makecomplex(chc_re, chc_im)
   return chc
 
+def get_pktz_snap(subband):
+    pktz_data_raw = fpga.snapshot_get('packetizer_snap', man_trig=True, man_valid=False)['data']
+    pktz_data_pile = np.fromstring(pktz_data_raw, dtype='>i1')
+    pktz_data = []
+    pktz_data_reshape = np.reshape(pktz_data_pile, (size(pktz_data_pile)/4, 4))
+    for i in range(0,8):
+        print size(pktz_data_reshape[i::8]), size(pktz_data_pile)
+        pktz_data_tmp = np.reshape(pktz_data_reshape[i::8], size(pktz_data_pile)/8)
+        pktz_data.append(pktz_data_tmp)
+    return pktz_data[subband], pktz_data
 
 def getpacket():
   size=8208
@@ -329,7 +345,7 @@ def plot_subband1(lo_f):
     show()
 
 
-def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
+def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50, mode='chc'):
   '''
   Plot the filter response of the CIC-Halfband-CIC filter (subband1)
   ***Notes: This function calls several functions (e.g. setfreq(), setampl(), etc.) that's specific for Berkeley BWRC setup
@@ -368,7 +384,10 @@ def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
     resp_y=0
     resp_y1=0
     for k in range(acc_len):
-      data=get_subband1(pol)
+      if mode is 'chc':
+        data=get_chc(pol)
+      else:
+        data=get_subband1(pol)
       data_1=get_halfband(pol)
       adc=getadc(pol-1)
       time.sleep(.3)
@@ -393,5 +412,86 @@ def filterresponse(pol, lo_f, acc_len = 5, scan_range=1, skip=50):
     specs=np.vstack((specs, y))
 
   return resp, resp1, freqs, specs
+
+def filtershape(pol, lo_f, dec_rate, acc_len = 5, scan_range=1, skip=50, mode='chc', man_trig=True):
+  '''
+  Plot the filter response of selected filter (subband1)
+  ***Notes: This function calls several functions (e.g. setfreq(), setampl(), etc.) that's specific for Berkeley BWRC setup
+  Global variables:
+    brd_clk: ADC bandwidth
+   Parameters:
+    pol: which pol to plot
+    lo_f: LO
+    dec_rate: the decimation rate up to selected filter
+    acc_len: accumulation length
+    scan_range: how many times of bandpass range to scan
+    skip: how to select test frequencies - skip how many points
+  Return values:
+    resp: response array
+    freqs: an array of frequencies corresponding to the resp array
+    specs: a 2-D array containing corresponding spectra 
+  '''
+  resp=np.array([])
+  freqs=np.array([])
+  time.sleep(1)
+  if mode is 'chc':
+    data=get_chc(pol, man_trig)
+  elif mode is 'subband':
+    data=get_subband1(pol)
+  elif mode is 'dr16':
+    data=get_dr16(pol)
+  elif mode is 'firstcic':
+    data=get_1stcic(pol)[1]
+  elif mode is 'halfband':
+    data=get_halfband(pol)
+  nchan=1.*len(data)
+  print 'size(data): ', size(data)
+  specs=abs(np.fft.fftshift(np.fft.fft(data)))
+
+  bandwidth=brd_clk*2./dec_rate
+  freq_arr = np.array(range(int(nchan)*scan_range))*bandwidth/nchan + lo_f - bandwidth*scan_range*0.5
+ 
+  print mode 
+  for i in range(0,nchan*scan_range,skip):
+    freq=freq_arr[i]
+    print "setting freq ",str(freq)
+    #setampl(-15) #BWRC
+    setfreq(freq) #BWRC
+    time.sleep(.3)
+    print runbash('./sg_ctrl freq')[0].split(' ')[0]  #BWRC
+    resp_y=0
+    for k in range(acc_len):
+      if mode is 'chc':
+        data=get_chc(pol)
+      elif mode is 'subband':
+        data=get_subband1(pol)
+      elif mode is 'dr16':
+        data=get_dr16(pol)
+      elif mode is 'firstcic':
+        data=get_1stcic(pol)[1]
+      elif mode is 'halfband':
+        data=get_halfband(pol)
+      else:
+        data=get_subband1(pol)
+      adc=getadc(pol-1)
+      time.sleep(.3)
+      print 'size(data): ', size(data)
+      y=np.fft.fft(data)
+      y0=np.fft.fft(adc)
+      y[0]=0
+      y0[0]=0
+      y=abs(np.fft.fftshift(y))
+      print size(y), size(specs)
+      y0=abs(np.fft.fftshift(y0))
+      resp_tmp = max(y)/max(y0)
+      #resp_tmp = y[i]/max(y0) 
+      resp_y=resp_y+resp_tmp
+    print 'response (accumulated '+str(acc_len)+' times): '+str(resp_y)
+    resp=np.append(resp, resp_y)
+    freqs=np.append(freqs, freq)
+    print 'length: ', size(specs), size(y)
+    specs=np.vstack((specs, y))
+
+  return resp,freqs, specs
 
 

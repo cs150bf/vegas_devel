@@ -26,6 +26,9 @@ def set_mode(mode_sel):
     """ set mode to mode_sel (0 for l8_lbw8, 1 for l8_lbw1) """
     fpga.write_int('mode_sel', mode_sel)
 
+def set_gain(subband, gain):
+    fpga.write_int('s'+str(subband)+'_quant_gain', gain)
+
 def setgain(subband, gain1, gain2):
     '''
      assign gain1 & gain2 for the two pols in given subband
